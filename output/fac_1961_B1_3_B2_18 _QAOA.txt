@@ -1,0 +1,8 @@
+config:
+{'cap_n': 1961, 'smooth_b1': 3, 'smooth_b2': 18, 'max_iter': 500, 'n_pair': None, 'base': 10, 'pwr': 1.5, 'pwr_range': (0.5, 6.0), 'search_type': <SearchType.QAOA: 'QAOA'>, 'qaoa_config': {'n_layer': 4, 'optimizer': 'adam', 'learning_rate': 0.002, 'max_iter': 1000, 'n_sample_shot': 1000, 'verbose': 1}}
+XOR linear system is:
+[[0, 0, 0], [0, 3, 3], [1, 2, 5], [4, 2, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 1, 1], [1, 0, 0], [0, 0, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0], [0, 0, 0], [0, 0, 1], [0, 0, 0], [0, 1, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+the roots are:
+[]
+succeed=False  p=1  q=1961
+Total spend 12.033 minutes.
