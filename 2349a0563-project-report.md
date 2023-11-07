@@ -94,7 +94,9 @@ $$
 在密码学中，格（lattice）是一种数学结构，它在构建一些重要的加密算法和安全协议中发挥关键作用，特别是在基于格的密码学中，如基于最近向量问题（Closest Vector Problem, CVP）的加密方法中。基于任意 $n$ 维度实数空间 $\mathbb{R}^n$ 的基组  $\mathbf{B}=\left(\mathbf{b}_1, \mathbf{b}_2, \ldots, \mathbf{b}_n\right)$ ，定义格
 
 $$
-\mathcal{L}=\left\{\mathbf{B z}: \mathbf{z} \in \mathbb{Z}^n\right\}
+\mathcal{L}=\left\lbrace
+\mathbf{B z}: \mathbf{z} \in \mathbb{Z}^n
+\right\rbrace
 \tag{6}
 $$
 
@@ -102,7 +104,6 @@ $$
 
 $$
 H(\mathbf{B})=\frac{|\operatorname{det} \mathbf{B}|}{\left\|\mathbf{b}_1\right\| \cdot\left\|\mathbf{b}_2\right\| \ldots\left\|\mathbf{b}_n\right\|}
-
 $$
 
 即格基张成的平行多面体体积与对应的长方体的体积之比。通过对格基作整数系数的线性组合可以提高格的Hadamard比率，称作格约简(reduction)。LLL算法（K.Lenstra, H.W.Lenstra, Jr. and L.Lovasz）是经典的格约简算法。
