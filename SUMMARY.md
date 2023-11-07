@@ -2,23 +2,21 @@
 
 ## Background
 
-This project is an implementation of paper: [Yan et. al. Factoring integers with sublinear resources on a superconducting quantum processor (Dec 2022)](https://arxiv.org/abs/2212.12372).
-
-Claus Peter Schnorr claims to destroy the RSA system in 2021. The proposed algorithm is achieved by constructing independent fac-relations from nearly shortest vectors of the lattice and distinct permutations $f$. See paper: [Fast Factoring Integers by SVP Algorithms, corrected](https://eprint.iacr.org/2021/933).
-
-In Yan et. al.'s work, an algorithm named SQIF that use QAOA (Quantum Approximation Optimization Algorithm) to optimize the solution of Schnorr's algorithm is presented. SQIF claimed that with the integer $N$ can be factorized with sub-linear resources, specifically, with $O(\log N/ \log\log N)$ qubits, which is far less than Shor's algorithm, which needs qubits scales to $O(\log N)$.
-
-I choose this project from [Open Source Promotion Plan \(OSPP\)](https://summer-ospp.ac.cn/) 2023.
+This project is an implementation of paper: [Yan et. al. Factoring integers with sublinear resources on a superconducting quantum processor (Dec 2022)](https://arxiv.org/abs/2212.12372). I choose this project from [Open Source Promotion Plan \(OSPP\)](https://summer-ospp.ac.cn/) 2023.
 OSPP is a summer program organized by the Institute of Software Chinese Academy of Sciences and long-term supported by the Open Source Software Supply Chain Promotion Plan.
 
 ## Related work
 
-1. Researchers from Google Research give an implementation of in github: [google-research
+1. In 2021, Claus Peter Schnorr claims to destroy the RSA system. The proposed algorithm is achieved by constructing independent fac-relations from nearly shortest vectors of the lattice and distinct permutations $f$. See paper: [Fast Factoring Integers by SVP Algorithms, corrected](https://eprint.iacr.org/2021/933).
+
+2. In 2022, Yan et. al.'s proposed an algorithm named SQIF that use QAOA (Quantum Approximation Optimization Algorithm) to optimize the solution of Schnorr's algorithm. They claimed that with the integer $N$ can be factorized with sub-linear resources, specifically, with $O(\log N/ \log\log N)$ qubits, which is far less than Shor's algorithm, which needs qubits scales to $O(\log N)$.
+
+3. Researchers from Google Research give an implementation of in github: [google-research
 /factoring_sqif](https://github.com/google-research/google-research/tree/master/factoring_sqif) with
 corresponding article on arxiv: [Tanuj Khattar, Noureldin Yosri. A comment on "Factoring integers with sublinear resources on a superconducting quantum processor" (Jul 2023)](https://arxiv.org/abs/2307.09651).
 Their implementation shows that the claimed sublinear lattice dimension for the hybrid quantum+classical version of Schnorr's algorithm successfully factors integers only up to 70 bits and fails to find enough factoring relations for random 80 bit integers and beyond.
 
-2. Researchers from Russian Quantum Center also give an implementation, the corresponding paper is available on arxiv: [Pitfalls of the sublinear QAOA-based factorization algorithm (Mar 2023)](https://arxiv.org/abs/2303.04656). They argue that the proposal of Yan et. al. lacks systematic analysis of the computational complexity of the classical part of the algorithm, which exploits the Schnorr's lattice-based approach.
+4. Researchers from Russian Quantum Center also give an implementation, the corresponding paper is available on arxiv: [Pitfalls of the sublinear QAOA-based factorization algorithm (Mar 2023)](https://arxiv.org/abs/2303.04656). They argue that the proposal of Yan et. al. lacks systematic analysis of the computational complexity of the classical part of the algorithm, which exploits the Schnorr's lattice-based approach.
 
 ## My work
 
