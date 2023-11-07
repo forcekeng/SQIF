@@ -1,131 +1,55 @@
-# SQIF
+# An Implementation of "Factoring integers with sublinear resources on a superconducting quantum processor"
 
-This proejct is an implementation of paper: [Factoring integers with sublinear resources on a superconducting quantum processor](https://arxiv.org/abs/2212.12372).
+## Background
 
-In paper[1], an algorithm named SQIF that use QAOA (Quantum Approximation Optimization Algorithm) to optimize the solution of
-Schnorr's algorithm is presented. SQIF claimed that with the integer $N$ can be factorized with sub-linear resources,
-specifically, with $O(\log N/ \log\log N)$ qubits, which is far less than Shor's algorithm, which needs qubits scales to $O(\log N)$.
+This project is an implementation of paper: [Yan et. al. Factoring integers with sublinear resources on a superconducting quantum processor (Dec 2022)](https://arxiv.org/abs/2212.12372).
 
-However, my implementation doesn't support the conclusion from SQIF. Babai's algorithm, which solves the CVP(closest
-vector problem), is a key ingredient of Schnorr's algorithm. SQIF tries to optimize the solution of Babai's algorithm
-in parallel with the power of quantum computing, which is also the key point to accelerate the Schnorr's algorithm and
-achieved so-called sub-linear resources consume. While in numerical experiments I find the optimized solution of
-Babai's algorithm results in more duplications, that is, we are inclined to get the same smooth pairs. This's a bad news
-for solving the CVP, because we need different smooth pairs to solve the modular linear equation and get the factorization
-of given $N$.
+Claus Peter Schnorr claims to destroy the RSA system in 2021. The proposed algorithm is achieved by constructing independent fac-relations from nearly shortest vectors of the lattice and distinct permutations $f$. See paper: [Fast Factoring Integers by SVP Algorithms, corrected](https://eprint.iacr.org/2021/933).
 
+In Yan et. al.'s work, an algorithm named SQIF that use QAOA (Quantum Approximation Optimization Algorithm) to optimize the solution of Schnorr's algorithm is presented. SQIF claimed that with the integer $N$ can be factorized with sub-linear resources, specifically, with $O(\log N/ \log\log N)$ qubits, which is far less than Shor's algorithm, which needs qubits scales to $O(\log N)$.
 
-## Install & Run
+I choose this project from [Open Source Promotion Plan \(OSPP\)](https://summer-ospp.ac.cn/) 2023.
+OSPP is a summer program organized by the Institute of Software Chinese Academy of Sciences and long-term supported by the Open Source Software Supply Chain Promotion Plan.
 
-A Linux system is recommended.
+## Related work
 
-```python
-conda env create -f dependencies.yaml -n sqif
-conda activate sqif
-python sqif/main.py
-```
+1. Researchers from Google Research give an implementation of in github: [google-research
+/factoring_sqif](https://github.com/google-research/google-research/tree/master/factoring_sqif) with
+corresponding article on arxiv: [Tanuj Khattar, Noureldin Yosri. A comment on "Factoring integers with sublinear resources on a superconducting quantum processor" (Jul 2023)](https://arxiv.org/abs/2307.09651).
+Their implementation shows that the claimed sublinear lattice dimension for the hybrid quantum+classical version of Schnorr's algorithm successfully factors integers only up to 70 bits and fails to find enough factoring relations for random 80 bit integers and beyond.
 
-## Example
+2. Researchers from Russian Quantum Center also give an implementation, the corresponding paper is available on arxiv: [Pitfalls of the sublinear QAOA-based factorization algorithm (Mar 2023)](https://arxiv.org/abs/2303.04656). They argue that the proposal of Yan et. al. lacks systematic analysis of the computational complexity of the classical part of the algorithm, which exploits the Schnorr's lattice-based approach.
 
-Here giving 3 demos of factorizing integer. You can modify it to factorize other integer (`cap_n`).
+## My work
 
-```python
-"""
-Some demos.
-"""
+I reimplement the work of Yan et. al. individually. In detail, I implement the code of Schnorr's algorithm and its components, including
 
-from qaoa_search import QAOAConfig
-from schnorr_algorithm import SearchType, SchnorrConfig, run_factorize
+1. Code for Schnorr's algorithm, where the key part is LLL-reduction algorithm. Google team just use Python package [fpylll](https://github.com/fplll/fpylll), it's faster because of writing in C++ and well optimized. See file `sqif/schnorr_algorithm.py`.
 
+2. Code for solving the linear modular(mod 2) system $(A x = b \mod 2)$ and with gaussian elimination method, and get all the solutions (instead of them) by back tracing method. See file `sqif/xor_linear_system_solver.py`.
 
-# demo 1: Normal mode.
-schnorr_config = SchnorrConfig(
-    cap_n=1961,
-    smooth_b1=5,
-    smooth_b2=5,
-    pwr_range=(0.5, 6),
-    search_type=SearchType.NONE,
-    qaoa_config=None
-)
+3. Code for constructing the quantum circuit of QAOA and running the . It is implemented by [Mindspore Quantum](https://gitee.com/mindspore/mindquantum). See file `qaoa_search.py`.
 
-run_factorize(schnorr_config, verbose=1, outdir="output/")
+## Result
 
+In short, my result doesn't comply with that of Yan et. al. My result combined two parts. Firstly I find some mistakes of data in paper of Yan et. al. Secondly I get a better result by changing some parameters.
 
-# demo 2: Brute-Force search.
-schnorr_config = SchnorrConfig(
-    cap_n=1961,
-    smooth_b1=3,
-    smooth_b2=2 * 3**2,
-    pwr=1.5,
-    search_type=SearchType.BF,
-    max_iter=int(1e5),
-    qaoa_config=None
-)
+For mistakes in paper, I show them in file `2349a0563-project-report.md`, which is a project summary and writing in Chinese. I also try to contact the author of this paper, maybe they will give a response soon.
 
-run_factorize(schnorr_config, verbose=1, outdir="output/")
+For super parameters, the Schnorr and Yan et. al. give different values to construct the lattices. For example, the Schnorr uses $N^{1/(n+1)}$, where $n$ is the number of primes used. While Yan et. al. use $N^c$, while $c$ is a super parameter and may vary with the size of lattice. In SQIF it's a fixed value when giving $N$, and SQIF tries to get the closest vector(corresponding to the lower energy of Hamiltonian) in each iteration. That results in a higher probability to get the same smooth pairs, while distinct smooth-pairs are needed to solve the modular linear system and get the factors of $N$. So I try to sample $c$ in a range uniformly, and don't use the QAOA or brute-force-method to get the optimal solution, it gets better results. I think the "distinct permutations $f$" in Schnorr's algorithm is to get diverse lattices so that get different smooth pairs. Searching the optimal solution just hinders the diversity.
 
+Here an exampling is given to illustrate it. For example, we sample 60 smooth pairs to factorize $N=78742675849$, more 16,000 steps is needed if we use fixed $c=4$, while less than 16,000 iterations if we use uniformly sampling $c$ from interval $(0.5, 6)$.
 
-# demo 3: QAOA search.
-qaoa_config = QAOAConfig(n_layer=4, verbose=1)
-schnorr_config = SchnorrConfig(
-    cap_n=1961,
-    smooth_b1=3,
-    smooth_b2=2 * 3**2,
-    pwr=1.5,
-    search_type=SearchType.QAOA,
-    qaoa_config=qaoa_config,
-    max_iter=500,
-)
+![iterations_smooth_pairs](images/iterations_smooth_pairs.png)
 
-run_factorize(schnorr_config, verbose=1, outdir="output/", log_step=10)
-```
-
-## Configuration
-
-```python
-@dataclass
-class QAOAConfig:
-    """Configuration for `QAOASearch`"""
-    n_layer: int = 4                # Layers of QAOA circuit.
-    # Optimizer for QAOA, only support Adam now.
-    optimizer: str = "adam"
-    learning_rate: float = 0.002    # Learning rate of optimizer.
-    max_iter: int = 1000            # Number of iterations in QAOA.
-    n_sample_shot: int = 1000       # Number of samples.
-    # Output the QAOA debug training information if `verbose` greater than 0.
-    verbose: int = 0
-
-
-@unique
-class SearchType(Enum):
-    """The search type to optimize Schnorr's algorithm."""
-    QAOA = "QAOA"
-    BF = "BF"
-    NONE = "NONE"
-
-
-@dataclass
-class SchnorrConfig:
-    cap_n: int               # The integer N that will be factorized.
-    smooth_b1: int = 5       # The number of primes, e.g it's 4, means the maximum prime is 7
-    # since the prime list is [2, 3, 5, 7, 11, ...].
-    # The second number of primes, in paper it's `2 * (smooth_b1^2)`, make sure `smooth_b2 >= smooth_b1`.
-    smooth_b2: int = 5
-    max_iter: int = 1e6      # The maximum number of iterations
-    # The number of smooth-pair that will sample, if None, it will be set as 2*smooth_b2
-    n_pair: int = None
-    base: int = 10           # The base used in the last line of CVP matrix.
-    pwr: float = None        # The power used in the last line of CVP matrix.
-    # Random sample `pwr` from `pwr_range` when `pwr` is None.
-    pwr_range: Tuple = (0.5, 6.0)
-    # Search type that optimizes the root of babai's algorithm.
-    search_type: SearchType = SearchType.NONE
-    # Only valid when `search_type` is `SearchType.QAOA`.
-    qaoa_config: QAOAConfig = None
-```
-
-More details can be seen in project-report.
+However, how can we set the range of $c$ how to design the map $f$ in Schnorr's algorithm is still unknown. We can only conclude that diversity is better.
 
 ## Reference
 
-[1] [Bao Yan, Ziqi Tan, Shijie Wei, Haocong Jiang, Weilong Wang, Hong Wang, Lan Luo, Qianheng Duan, Yiting Liu, Wenhao Shi, Yangyang Fei, Xiangdong Meng, Yu Han, Zheng Shan, Jiachen Chen, Xuhao Zhu, Chuanyu Zhang, Feitong Jin, Hekang Li, Chao Song, Zhen Wang, Zhi Ma, H. Wang, and Gui-Lu Long. Factoring integers with sublinear resources on a superconducting quantum processor.](https://arxiv.org/abs/2212.12372)
+[1] [Bao Yan, Ziqi Tan, Shijie Wei, Haocong Jiang, Weilong Wang, Hong Wang, Lan Luo, Qianheng Duan, Yiting Liu, Wenhao Shi, Yangyang Fei, Xiangdong Meng, Yu Han, Zheng Shan, Jiachen Chen, Xuhao Zhu, Chuanyu Zhang, Feitong Jin, Hekang Li, Chao Song, Zhen Wang, Zhi Ma, H. Wang, and Gui-Lu Long. Factoring integers with sublinear resources on a superconducting quantum processor. Nov 2022](https://arxiv.org/abs/2212.12372)
+
+[2] [Claus Peter Schnorr, Fast Factoring Integers by SVP Algorithms, corrected. Jul 2021.](https://eprint.iacr.org/2021/933)
+
+[3] [Tanuj Khattar, Noureldin Yosri. A comment on "Factoring integers with sublinear resources on a superconducting quantum processor". Jul 2023.](https://arxiv.org/abs/2307.09651)
+
+[4] [S.V. Grebnev, M.A. Gavreev, E.O. Kiktenko, A.P. Guglya, A.K. Fedorov, Pitfalls of the sublinear QAOA-based factorization algorithm. Mar 2023.](https://arxiv.org/abs/2303.04656)
